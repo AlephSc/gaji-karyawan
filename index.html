@@ -3,30 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Kalkulator gaji karyawan berbasis acara untuk pemasangan dan pembongkaran.">
+  <meta name="description" content="Kalkulator gaji karyawan berbasis acara dengan pembagian borongan crew.">
   <title>Gaji Acara — Kalkulator Karyawan</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
-    <div>
-      <p class="eyebrow">EVENT PAYROLL</p>
-      <h1>Gaji Acara</h1>
-    </div>
+    <div><p class="eyebrow">EVENT PAYROLL</p><h1>Gaji Acara</h1></div>
     <button id="resetBtn" class="btn btn-ghost" type="button">Reset Data</button>
   </header>
 
   <main class="container">
     <section class="hero card">
-      <div>
-        <p class="eyebrow">KALKULATOR PER ACARA</p>
-        <h2 id="eventTitle">Acara Baru</h2>
-        <p class="muted">Atur karyawan, barang, absensi pemasangan/pembongkaran, lalu lihat estimasi gaji secara otomatis.</p>
-      </div>
-      <div class="hero-actions">
-        <button id="saveBtn" class="btn btn-primary" type="button">Simpan</button>
-        <button id="exportBtn" class="btn btn-secondary" type="button">Export JSON</button>
-      </div>
+      <div><p class="eyebrow">KALKULATOR PER ACARA</p><h2 id="eventTitle">Acara Baru</h2><p class="muted">Hitung gaji berdasarkan kehadiran, barang, kuantitas, dan pembagian kerja setiap crew.</p></div>
+      <div class="hero-actions"><button id="saveBtn" class="btn btn-primary" type="button">Simpan</button><button id="exportBtn" class="btn btn-secondary" type="button">Export JSON</button></div>
     </section>
 
     <section class="grid-2">
@@ -39,71 +29,41 @@
           <label>Catatan<input id="eventNote" type="text" placeholder="Catatan tambahan"></label>
         </div>
       </article>
-
       <article class="card">
         <div class="section-head"><div><span class="step">02</span><h3>Tarif Dasar</h3></div></div>
         <div class="form-grid">
           <label>Tarif hadir / orang<input id="baseRate" type="number" min="0" value="100000"></label>
-          <label>Tarif pasang / unit<input id="installRate" type="number" min="0" value="10000"></label>
-          <label>Tarif bongkar / unit<input id="removeRate" type="number" min="0" value="10000"></label>
+          <label>Default pasang / unit<input id="installRate" type="number" min="0" value="10000"></label>
+          <label>Default bongkar / unit<input id="removeRate" type="number" min="0" value="10000"></label>
         </div>
-        <p class="hint">Tarif dapat diubah per acara. Pembagian kerja tiap barang diatur di tabel matriks di bawah.</p>
+        <p class="hint">Tarif default hanya dipakai sebagai referensi untuk barang custom. Tarif barang dapat diatur sendiri di bawah.</p>
       </article>
     </section>
 
     <section class="card">
-      <div class="section-head">
-        <div><span class="step">03</span><h3>Karyawan</h3></div>
-        <button id="addEmployeeBtn" class="btn btn-primary" type="button">+ Tambah Karyawan</button>
-      </div>
+      <div class="section-head"><div><span class="step">03</span><h3>Karyawan</h3></div><button id="addEmployeeBtn" class="btn btn-primary" type="button">+ Tambah Karyawan</button></div>
       <div id="employeeList" class="employee-list"></div>
     </section>
 
     <section class="card">
-      <div class="section-head">
-        <div><span class="step">04</span><h3>Barang & Kuantitas</h3></div>
-        <button id="addItemBtn" class="btn btn-primary" type="button">+ Tambah Barang</button>
-      </div>
+      <div class="section-head"><div><span class="step">04</span><h3>Barang & Tarif</h3></div><div class="quick-actions"><button id="addTendaBtn" class="btn btn-secondary" type="button">+ Tenda 75K</button><button id="addPanggungBtn" class="btn btn-secondary" type="button">+ Panggung 4×6 100K</button><button id="addItemBtn" class="btn btn-primary" type="button">+ Barang Custom</button></div></div>
+      <p class="muted">Barang khusus Tenda dan Panggung 4×6 memakai model <strong>borongan crew</strong>. Nilai borongan adalah total untuk crew, bukan tarif per orang.</p>
       <div id="itemList" class="item-list"></div>
     </section>
 
     <section class="card">
-      <div class="section-head">
-        <div><span class="step">05</span><h3>Absensi & Pembagian Kerja</h3></div>
-        <span class="badge">Per barang × per karyawan</span>
-      </div>
-      <p class="muted">Centang <strong>Hadir</strong> jika karyawan ikut acara. Untuk setiap barang, pilih apakah ia ikut <strong>Pasang</strong>, <strong>Bongkar</strong>, atau keduanya. Kombinasi tiap orang bisa berbeda.</p>
+      <div class="section-head"><div><span class="step">05</span><h3>Absensi & Pembagian Kerja</h3></div><span class="badge">Per barang × per karyawan</span></div>
+      <p class="muted">Centang <strong>Hadir</strong>. Untuk tiap barang, tentukan siapa yang <strong>Pasang</strong> dan siapa yang <strong>Bongkar</strong>. Orang yang hanya memasang tetap bisa berbeda dengan orang yang hanya membongkar.</p>
       <div id="matrixWrap" class="matrix-wrap"></div>
     </section>
 
     <section class="summary-grid">
-      <article class="card summary-main">
-        <div class="section-head"><div><span class="step">06</span><h3>Rekap Gaji</h3></div></div>
-        <div id="payrollSummary"></div>
-      </article>
-      <article class="card total-card">
-        <p class="muted">TOTAL GAJI ACARA</p>
-        <strong id="grandTotal">Rp 0</strong>
-        <p id="workSummary" class="muted">0 karyawan · 0 barang</p>
-      </article>
+      <article class="card summary-main"><div class="section-head"><div><span class="step">06</span><h3>Rekap Gaji</h3></div></div><div id="payrollSummary"></div></article>
+      <article class="card total-card"><p class="muted">TOTAL GAJI ACARA</p><strong id="grandTotal">Rp 0</strong><p id="workSummary" class="muted">0 karyawan · 0 barang</p></article>
     </section>
+
+    <section class="card"><div class="section-head"><div><span class="step">07</span><h3>Rekap Borongan per Barang</h3></div></div><div id="itemSummary"></div></section>
   </main>
-
-  <template id="employeeTemplate">
-    <div class="employee-row">
-      <input class="employee-name" type="text" placeholder="Nama karyawan">
-      <button class="icon-btn remove-employee" type="button" title="Hapus">×</button>
-    </div>
-  </template>
-
-  <template id="itemTemplate">
-    <div class="item-row">
-      <input class="item-name" type="text" placeholder="Nama barang / benda">
-      <input class="item-qty" type="number" min="0" value="1" title="Kuantitas">
-      <button class="icon-btn remove-item" type="button" title="Hapus">×</button>
-    </div>
-  </template>
-
   <script src="app.js"></script>
 </body>
 </html>
